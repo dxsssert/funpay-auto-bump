@@ -1,0 +1,25 @@
+name: FunPay Auto Bump
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'  # Каждые 4 часа
+  workflow_dispatch:        # Позволяет запускать вручную
+
+jobs:
+  bump-lots:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Run FunPay Bump
+      run: dotnet run --project ./FunPayBump/FunPayBump.csproj
+      env:
+        FUNPAY_COOKIE: ${{ secrets.FUNPAY_COOKIE }}
+      
