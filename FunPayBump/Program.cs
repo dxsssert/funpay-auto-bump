@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 class Program
 {
     private static readonly Random random = new Random();
-    private static readonly string[] lotIds = { "51103802", "51102485", "39991936" };
+    private static readonly string[] lotIds = {"51102485", "39991936" };
 
     static async Task Main(string[] args)
     {
