@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 class Program
 {
     private static readonly Random random = new Random();
-    private const string LotId = "63886158"; // ID вашего единственного лота
+    private const string LotId = "63886158"; 
 
     static async Task Main(string[] args)
     {
@@ -26,7 +26,7 @@ class Program
             client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
             client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
 
-            while (true) // Бесконечный цикл для постоянного поднятия
+            while (true) 
             {
                 try
                 {
@@ -47,7 +47,8 @@ class Program
                         Console.WriteLine($"❌ Ошибка {response.StatusCode}: {responseText}");
                     }
                     
-                    // Случайная пауза между поднятиями (от 2 до 3 минут)
+
+                    
                     var delayMinutes = random.Next(2, 4);
                     var delay = TimeSpan.FromMinutes(delayMinutes);
                     Console.WriteLine($"⏳ Следующее поднятие через {delayMinutes} мин ({delayMinutes * 60} сек)...");
