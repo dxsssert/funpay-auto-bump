@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 class Program
 {
     private static readonly Random random = new Random();
-    private const string LotId = "63886158"; 
+    private const string LotId = "63886158";
 
     static async Task Main(string[] args)
     {
@@ -26,42 +26,31 @@ class Program
             client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
             client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
 
-            while (true) 
+            try
             {
-                try
+                Console.WriteLine($"🔄 Поднимаем лот #{LotId}...");
+                
+                var content = new StringContent($"id={LotId}&game_id=106&node_id=288", 
+                    Encoding.UTF8, "application/x-www-form-urlencoded");
+                
+                var response = await client.PostAsync("https://funpay.com/lots/raise", content);
+                var responseText = await response.Content.ReadAsStringAsync();
+                
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"🔄 Поднимаем лот #{LotId}...");
-                    
-                    var content = new StringContent($"id={LotId}&game_id=106&node_id=288", 
-                        Encoding.UTF8, "application/x-www-form-urlencoded");
-                    
-                    var response = await client.PostAsync("https://funpay.com/lots/raise", content);
-                    var responseText = await response.Content.ReadAsStringAsync();
-                    
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"✅ Лот #{LotId} успешно поднят! {DateTime.Now:HH:mm:ss}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"❌ Ошибка {response.StatusCode}: {responseText}");
-                    }
-                    
-
-                    
-                    var delayMinutes = random.Next(2, 4);
-                    var delay = TimeSpan.FromMinutes(delayMinutes);
-                    Console.WriteLine($"⏳ Следующее поднятие через {delayMinutes} мин ({delayMinutes * 60} сек)...");
-                    Console.WriteLine("─────────────────────────────────────────");
-                    await Task.Delay(delay);
+                    Console.WriteLine($"✅ Лот #{LotId} успешно поднят! {DateTime.Now:HH:mm:ss}");
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"❌ Критическая ошибка: {ex.Message}");
-                    Console.WriteLine("⏳ Повтор через 60 секунд...");
-                    await Task.Delay(TimeSpan.FromSeconds(60));
+                    Console.WriteLine($"❌ Ошибка {response.StatusCode}: {responseText}");
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Критическая ошибка: {ex.Message}");
+            }
         }
+        
+        Console.WriteLine("✅ Лот обработан");
     }
 }
