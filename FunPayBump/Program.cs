@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 class Program
 {
     private static readonly Random random = new Random();
-    private static readonly string[] lotIds = {"51102485", "39991936" };
+    private const string LotId = "63886158"; // ID вашего единственного лота
 
     static async Task Main(string[] args)
     {
-        Console.WriteLine($"🔹 Начинаем поднятие лотов: {DateTime.Now:HH:mm:ss}");
+        Console.WriteLine($"🔹 Начинаем работу с лотом #{LotId}: {DateTime.Now:HH:mm:ss}");
         
         var cookie = Environment.GetEnvironmentVariable("FUNPAY_COOKIE");
         if (string.IsNullOrEmpty(cookie))
@@ -26,13 +26,13 @@ class Program
             client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
             client.DefaultRequestHeaders.Add("Accept", "application/json, text/javascript, */*; q=0.01");
 
-            foreach (var lotId in lotIds)
+            while (true) // Бесконечный цикл для постоянного поднятия
             {
                 try
                 {
-                    Console.WriteLine($"🔹 Поднимаем лот #{lotId}");
+                    Console.WriteLine($"🔄 Поднимаем лот #{LotId}...");
                     
-                    var content = new StringContent($"id={lotId}&game_id=106&node_id=288", 
+                    var content = new StringContent($"id={LotId}&game_id=106&node_id=288", 
                         Encoding.UTF8, "application/x-www-form-urlencoded");
                     
                     var response = await client.PostAsync("https://funpay.com/lots/raise", content);
@@ -40,25 +40,27 @@ class Program
                     
                     if (response.IsSuccessStatusCode)
                     {
-                        Console.WriteLine($"✅ Лот #{lotId} поднят!");
+                        Console.WriteLine($"✅ Лот #{LotId} успешно поднят! {DateTime.Now:HH:mm:ss}");
                     }
                     else
                     {
-                        Console.WriteLine($"❌ Лот #{lotId}: ошибка {response.StatusCode}");
+                        Console.WriteLine($"❌ Ошибка {response.StatusCode}: {responseText}");
                     }
                     
-                    // Случайная задержка между лотами
-                    var delay = random.Next(120, 180);
-                    Console.WriteLine($"⏳ Ожидаем {delay} секунд...");
-                    await Task.Delay(TimeSpan.FromSeconds(delay));
+                    // Случайная пауза между поднятиями (от 2 до 3 минут)
+                    var delayMinutes = random.Next(2, 4);
+                    var delay = TimeSpan.FromMinutes(delayMinutes);
+                    Console.WriteLine($"⏳ Следующее поднятие через {delayMinutes} мин ({delayMinutes * 60} сек)...");
+                    Console.WriteLine("─────────────────────────────────────────");
+                    await Task.Delay(delay);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ Ошибка лота #{lotId}: {ex.Message}");
+                    Console.WriteLine($"❌ Критическая ошибка: {ex.Message}");
+                    Console.WriteLine("⏳ Повтор через 60 секунд...");
+                    await Task.Delay(TimeSpan.FromSeconds(60));
                 }
             }
         }
-        
-        Console.WriteLine("✅ Все лоты обработаны!");
     }
 }
